@@ -396,8 +396,6 @@ type putFn func(ctx context.Context, in io.Reader, src fs.ObjectInfo, options ..
 
 // put implements Put or PutStream
 func (f *Fs) put(ctx context.Context, in io.Reader, src fs.ObjectInfo, options []fs.OpenOption, put putFn) (fs.Object, error) {
-	ci := fs.GetConfig(ctx)
-
 	if f.opt.NoDataEncryption {
 		o, err := put(ctx, in, f.newObjectInfo(src, nonce{}), options...)
 		if err == nil && o != nil {
@@ -415,9 +413,6 @@ func (f *Fs) put(ctx context.Context, in io.Reader, src fs.ObjectInfo, options [
 	// Find a hash the destination supports to compute a hash of
 	// the encrypted data
 	ht := f.Fs.Hashes().GetOne()
-	if ci.IgnoreChecksum {
-		ht = hash.None
-	}
 	var hasher *hash.MultiHasher
 	if ht != hash.None {
 		hasher, err = hash.NewMultiHasherTypes(hash.NewHashSet(ht))
